@@ -1,50 +1,58 @@
 (function() {
-    let MobilePanel = {
+    let PanelContainer = {
+        CONTAINER_ATTRIBUTE: 'panel-container',
+        PANEL_ATTRIBUTE: 'panel',
         panelHolder: null,
-        panelLength:0,
-        index:0,
+        panelLength: 0,
+        index: 0,
         init() {
             document.addEventListener('DOMContentLoaded', this.onLoaded.bind(this));
         },
         onLoaded() {
-            console.log('loaded');
             this.setPanelHolder();
             this.setPanels();
-            this.addListener();
-        },
-        addListener(){
-          document.body.addEventListener('click', function(){
-            this.index++;
-            this.panelHolder.style.transform = 'translateX(' + (- (100 * this.index)) + 'vw)';
-          }.bind(this));
+            this.setInstance();
         },
         setPanelHolder() {
-            console.log('set');
-            this.panelHolder = document.querySelector('panel-container');
+            this.panelHolder = document.querySelector('[ ' + this.CONTAINER_ATTRIBUTE + ']');
             if (!this.panelHolder) return;
-            console.log(100 * this.panelLength );
-            this.panelHolder.style = 'display:block;position:relative;width:100vw;height:100vh;overflow:hidden;transition: transform 0.5s ease-out;';
+            this.panelHolder.style += 'display:block;position:relative;width:100vw;height:100vh;overflow:hidden;transition: transform 0.5s ease-out;';
         },
         setPanels() {
-            let panelCollection = this.panelHolder.querySelectorAll('panel');
+            let panelCollection = this.panelHolder.querySelectorAll('[ ' + this.PANEL_ATTRIBUTE + ']');
             this.panelLength = panelCollection.length;
             for (let a = 0; a < panelCollection.length; a++) {
                 let panel = panelCollection[a];
-                panel.style = 'display:block;width:100vw;height:100vh;overflow:hidden;position:absolute;left:calc(100vw *' + a + ');top:0;';
-                panel.style.backgroundColor = this.getRandomColor();
+                panel.style += 'display:block;width:100vw;height:100vh;overflow:hidden;position:absolute;left:calc(100vw *' + a + ');top:0;';
             }
-
-            this.panelHolder.style.width = (100 * this.panelLength ) + 'vw';
+            this.panelHolder.style.width = (100 * this.panelLength) + 'vw';
         },
-        getRandomColor() {
-            var letters = '0123456789ABCDEF';
-            var color = '#';
-            for (var i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
+        next() {
+            this.index++;
+            if (this.index >= this.panelLength) {
+                this.index = this.panelLength - 1;
+                return;
             }
-            return color;
+            this.setContainerX();
+        },
+        previous() {
+            this.index--;
+            if (this.index < 0) {
+                this.index = 0;
+                return;
+            }
+            this.setContainerX();
+        },
+        setContainerX() {
+            this.panelHolder.style.transform = 'translateX(' + (-(100 * this.index)) + 'vw)';
+        },
+        setInstance() {
+            window.PanelContainer = {
+                next: this.next.bind(this),
+                previous: this.previous.bind(this)
+            }
         }
     };
 
-    MobilePanel.init();
+    PanelContainer.init();
 })();
